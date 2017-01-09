@@ -42,6 +42,8 @@ Level 5: Nonlinear motor step position, only for nonlinear drive systems
 #ifndef PRINTER_H_INCLUDED
 #define PRINTER_H_INCLUDED
 
+#include "Adafruit_NeoPixel.h"
+
 union floatLong
 {
     float f;
@@ -291,6 +293,9 @@ class Printer
 {
     static uint8_t debugLevel;
 public:
+    static Adafruit_NeoPixel ext_neopixel;
+    static Adafruit_NeoPixel bed_neopixel;
+    
 #if USE_ADVANCE
     static volatile int extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
     static ufast8_t maxExtruderSpeed;            ///< Timer delay for end extruder speed

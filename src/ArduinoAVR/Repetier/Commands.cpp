@@ -76,6 +76,8 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves) {
     // lcd controller can start new moves, so we disallow it if called from within
     // a move command.
     UI_SLOW(allowNewMoves);
+
+    handle_neopixels();
 }
 
 /** \brief Waits until movement cache is empty.
@@ -2464,4 +2466,85 @@ void Commands::writeLowestFreeRAM() {
         lowestRAMValueSend = lowestRAMValue;
         Com::printFLN(Com::tFreeRAM, lowestRAMValue);
     }
+}
+
+//Add Neopixel ws2812b code
+uint32_t Commands::stat_update = 0;
+uint16_t Commands::neo_r = 0;
+uint16_t Commands::neo_g = 0;
+uint16_t Commands::neo_b = 255;
+uint16_t Commands::c_diff = 0;
+uint32_t Commands::bed_c;
+uint32_t Commands::ext_c;
+uint32_t Commands::last_bed_c;
+uint32_t Commands::last_ext_c;
+float Commands::curr_ext_temp = 0.0;
+float Commands::target_ext_temp = 0.0;
+float Commands::curr_bed_temp = 0;
+float Commands::target_bed_temp = 0;
+
+void Commands::handle_neopixels() {
+  if(HAL::timeInMilliseconds() > stat_update) {
+    stat_update += 500;
+ //  SET Bed LED
+    if(heatedBedController.currentTemperatureC > 0) {
+      if(heatedBedController.currentTemperatureC > heatedBedController.targetTemperatureC && heatedBedController.targetTemperatureC > 0) {
+        curr_bed_temp = heatedBedController.targetTemperatureC;
+      } else {
+        curr_bed_temp = heatedBedController.currentTemperatureC;
+      }
+    }
+    target_bed_temp = heatedBedController.targetTemperatureC;
+
+    if(curr_bed_temp >= 30.0) {
+      if(target_bed_temp > 0) {   //Heating Up
+        c_diff = (curr_bed_temp - 30)*255/(target_bed_temp-30);
+        if(c_diff>255) {c_diff = 255;}
+      } else {  //Cooling Down
+        c_diff = (curr_bed_temp-30)*6;
+        if(c_diff>255) {c_diff = 255;}
+      }
+      neo_r = c_diff;
+      neo_b = 255 - c_diff;
+    } else {  //Temp is less than 30.0
+      neo_r = 0;
+      neo_b = 255;
+    }
+    last_bed_c = bed_c;
+    bed_c = Printer::bed_neopixel.Color(neo_r, neo_g, neo_b);
+    if(bed_c != last_bed_c) {  //only update if there's a change
+      Printer::bed_neopixel.setPixelColor(0, bed_c);
+      Printer::bed_neopixel.show();
+    }
+
+  //  SET Extruder LED   
+    if(Extruder::current->tempControl.currentTemperatureC > 0) {
+      if(Extruder::current->tempControl.currentTemperatureC > tempController[Extruder::current->id]->targetTemperatureC && tempController[Extruder::current->id]->targetTemperatureC > 0) {
+        curr_ext_temp = tempController[Extruder::current->id]->targetTemperatureC;
+      } else {
+        curr_ext_temp = Extruder::current->tempControl.currentTemperatureC;
+      }
+    }
+    target_ext_temp = tempController[Extruder::current->id]->targetTemperatureC;
+    if(curr_ext_temp > 30.0) {
+      if(target_ext_temp > 0) {
+        c_diff = (curr_ext_temp - 30)*255/(target_ext_temp-30);
+        if(c_diff>255) {c_diff = 255;}
+      } else {
+        c_diff = (curr_ext_temp-30)*2;
+        if(c_diff>255) {c_diff = 255;}
+      }
+      neo_r = c_diff;
+      neo_b = 255 - c_diff;
+    } else {
+      neo_r = 0;
+      neo_b = 255;
+    }
+    last_ext_c = ext_c;
+    ext_c = Printer::ext_neopixel.Color(neo_r, neo_g, neo_b);
+    if(ext_c != last_ext_c) {
+      Printer::ext_neopixel.setPixelColor(0, ext_c);
+      Printer::ext_neopixel.show();
+    }
+  }
 }

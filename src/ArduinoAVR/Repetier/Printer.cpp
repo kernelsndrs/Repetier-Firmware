@@ -18,6 +18,10 @@
 
 #include "Repetier.h"
 
+Adafruit_NeoPixel Printer::ext_neopixel = Adafruit_NeoPixel(2, 42, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel Printer::bed_neopixel = Adafruit_NeoPixel(1, 44, NEO_GRB + NEO_KHZ800);
+
+
 #if USE_ADVANCE
 ufast8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder speed
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
@@ -773,6 +777,15 @@ void Printer::setup()
     HAL::spiBegin();
 #endif
     HAL::hwSetup();
+
+    bed_neopixel.begin();
+    bed_neopixel.show();
+    ext_neopixel.begin();
+    ext_neopixel.show();
+    uint32_t w = ext_neopixel.Color(255, 250, 250);
+    ext_neopixel.setPixelColor(1, w);
+    ext_neopixel.show();
+    
 #ifdef ANALYZER
 // Channel->pin assignments
 #if ANALYZER_CH0>=0
