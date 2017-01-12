@@ -22,7 +22,7 @@
 // Id to distinguish version changes
 #define EEPROM_PROTOCOL_VERSION 16
 
-/** Where to start with our datablock in memory. Can be moved if you
+/** Where to start with our data block in memory. Can be moved if you
 have problems with other modules using the eeprom */
 
 #define EPR_MAGIC_BYTE              0
@@ -169,6 +169,7 @@ have problems with other modules using the eeprom */
 // 55-57 free for byte sized parameter
 #define EPR_EXTRUDER_MIXING_RATIOS  58 // 16*2 byte ratios = 32 byte -> end = 89
 #define EPR_EXTRUDER_Z_OFFSET            90
+#define EPR_EXTRUDER_MATERIAL            94 // maybe better temperature
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0
 #endif

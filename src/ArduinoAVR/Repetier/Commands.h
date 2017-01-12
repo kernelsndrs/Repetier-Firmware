@@ -45,24 +45,9 @@ public:
     static void emergencyStop();
     static void checkFreeMemory();
     static void writeLowestFreeRAM();
-    static void handle_neopixels();
 private:
     static int lowestRAMValue;
     static int lowestRAMValueSend;
-    
-    static uint32_t stat_update;
-    static uint16_t neo_r;
-    static uint16_t neo_g;
-    static uint16_t neo_b;
-    static uint16_t c_diff;
-    static uint32_t bed_c;
-    static uint32_t ext_c;
-    static uint32_t last_bed_c;
-    static uint32_t last_ext_c;
-    static float curr_ext_temp;
-    static float target_ext_temp;
-    static float curr_bed_temp;
-    static float target_bed_temp;
 };
 
 #endif // COMMANDS_H_INCLUDED
