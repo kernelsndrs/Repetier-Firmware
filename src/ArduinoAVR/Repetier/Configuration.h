@@ -36,7 +36,7 @@
 
 */
 
-#define NUM_EXTRUDER 0
+#define NUM_EXTRUDER 1
 #define MOTHERBOARD 33
 #include "pins.h"
 
@@ -77,6 +77,46 @@
 #define PAUSE_START_COMMANDS ""
 #define PAUSE_END_COMMANDS ""
 #define SHARED_EXTRUDER_HEATER 0
+#define EXT0_X_OFFSET 0
+#define EXT0_Y_OFFSET 0
+#define EXT0_Z_OFFSET 0
+#define EXT0_STEPS_PER_MM 370
+#define EXT0_TEMPSENSOR_TYPE 1
+#define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT0_HEATER_PIN HEATER_0_PIN
+#define EXT0_STEP_PIN ORIG_E0_STEP_PIN
+#define EXT0_DIR_PIN ORIG_E0_DIR_PIN
+#define EXT0_INVERSE 0
+#define EXT0_ENABLE_PIN ORIG_E0_ENABLE_PIN
+#define EXT0_ENABLE_ON 0
+#define EXT0_MIRROR_STEPPER 0
+#define EXT0_STEP2_PIN ORIG_E0_STEP_PIN
+#define EXT0_DIR2_PIN ORIG_E0_DIR_PIN
+#define EXT0_INVERSE2 0
+#define EXT0_ENABLE2_PIN ORIG_E0_ENABLE_PIN
+#define EXT0_MAX_FEEDRATE 50
+#define EXT0_MAX_START_FEEDRATE 20
+#define EXT0_MAX_ACCELERATION 10000
+#define EXT0_HEAT_MANAGER 1
+#define EXT0_WATCHPERIOD 1
+#define EXT0_PID_INTEGRAL_DRIVE_MAX 255
+#define EXT0_PID_INTEGRAL_DRIVE_MIN 40
+#define EXT0_PID_PGAIN_OR_DEAD_TIME 24.8
+#define EXT0_PID_I 1.67
+#define EXT0_PID_D 92.03
+#define EXT0_PID_MAX 255
+#define EXT0_ADVANCE_K 0
+#define EXT0_ADVANCE_L 0
+#define EXT0_ADVANCE_BACKLASH_STEPS 0
+#define EXT0_WAIT_RETRACT_TEMP 150
+#define EXT0_WAIT_RETRACT_UNITS 0
+#define EXT0_SELECT_COMMANDS ""
+#define EXT0_DESELECT_COMMANDS ""
+#define EXT0_EXTRUDER_COOLER_PIN -1
+#define EXT0_EXTRUDER_COOLER_SPEED 255
+#define EXT0_DECOUPLE_TEST_PERIOD 12000
+#define EXT0_JAM_PIN -1
+#define EXT0_JAM_PULLUP 0
 
 #define FEATURE_RETRACTION 1
 #define AUTORETRACT_ENABLED 0
@@ -103,9 +143,9 @@
 
 #define RETRACT_DURING_HEATUP true
 #define PID_CONTROL_RANGE 20
-#define SKIP_M109_IF_WITHIN 2
+#define SKIP_M109_IF_WITHIN 3
 #define SCALE_PID_TO_MAX 0
-#define TEMP_HYSTERESIS 0
+#define TEMP_HYSTERESIS 3
 #define EXTRUDE_MAXLENGTH 160
 #define NUM_TEMPS_USERTHERMISTOR0 0
 #define USER_THERMISTORTABLE0 {}
@@ -120,18 +160,18 @@
 // ############# Heated bed configuration ########################
 
 #define HAVE_HEATED_BED 1
-#define HEATED_BED_MAX_TEMP 110
+#define HEATED_BED_MAX_TEMP 120
 #define SKIP_M190_IF_WITHIN 3
 #define HEATED_BED_SENSOR_TYPE 1
 #define HEATED_BED_SENSOR_PIN TEMP_1_PIN
 #define HEATED_BED_HEATER_PIN HEATER_1_PIN
 #define HEATED_BED_SET_INTERVAL 5000
-#define HEATED_BED_HEAT_MANAGER 1
+#define HEATED_BED_HEAT_MANAGER 2
 #define HEATED_BED_PID_INTEGRAL_DRIVE_MAX 255
 #define HEATED_BED_PID_INTEGRAL_DRIVE_MIN 80
-#define HEATED_BED_PID_PGAIN_OR_DEAD_TIME   10
-#define HEATED_BED_PID_IGAIN   .23
-#define HEATED_BED_PID_DGAIN 305.4
+#define HEATED_BED_PID_PGAIN_OR_DEAD_TIME   196
+#define HEATED_BED_PID_IGAIN   33
+#define HEATED_BED_PID_DGAIN 290
 #define HEATED_BED_PID_MAX 255
 #define HEATED_BED_DECOUPLE_TEST_PERIOD 300000
 #define MIN_EXTRUDER_TEMP 170
@@ -248,7 +288,7 @@ It also can add a delay to wait for spindle to run on full speed.
 #define DISABLE_Z 0
 #define DISABLE_E 0
 #define INVERT_X_DIR 0
-#define INVERT_Y_DIR 0
+#define INVERT_Y_DIR 1
 #define INVERT_Z_DIR 0
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
@@ -321,8 +361,8 @@ It also can add a delay to wait for spindle to run on full speed.
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 200
 #define INTERPOLATE_ACCELERATION_WITH_Z 0
 #define ACCELERATION_FACTOR_TOP 100
-#define MAX_JERK 15
-#define MAX_ZJERK 0.4
+#define MAX_JERK 20
+#define MAX_ZJERK 1
 #define PRINTLINE_CACHE_SIZE 16
 #define MOVE_CACHE_LOW 10
 #define LOW_TICKS_PER_MOVE 250000
@@ -412,7 +452,7 @@ WARNING: Servos can draw a considerable amount of current. Make sure your system
 #define Z_PROBE_RUN_AFTER_EVERY_PROBE ""
 #define Z_PROBE_REQUIRES_HEATING 0
 #define Z_PROBE_MIN_TEMPERATURE 150
-#define FEATURE_AUTOLEVEL 0
+#define FEATURE_AUTOLEVEL 1
 #define Z_PROBE_X1 20
 #define Z_PROBE_Y1 20
 #define Z_PROBE_X2 160
@@ -473,7 +513,7 @@ WARNING: Servos can draw a considerable amount of current. Make sure your system
 #define UI_AUTORETURN_TO_MENU_AFTER 30000
 #define FEATURE_UI_KEYS 0
 #define UI_ENCODER_SPEED 1
-#define UI_REVERSE_ENCODER 0
+#define UI_REVERSE_ENCODER 1
 #define UI_KEY_BOUNCETIME 10
 #define UI_KEY_FIRST_REPEAT 500
 #define UI_KEY_REDUCE_REPEAT 50
@@ -528,7 +568,61 @@ Values must be in range 1..255
     "yInvertEnable": 0,
     "zInvert": 0,
     "zInvertEnable": 0,
-    "extruder": [],
+    "extruder": [
+        {
+            "id": 0,
+            "heatManager": 1,
+            "pidDriveMin": 40,
+            "pidDriveMax": 255,
+            "pidMax": 255,
+            "sensorType": 1,
+            "sensorPin": "TEMP_0_PIN",
+            "heaterPin": "HEATER_0_PIN",
+            "maxFeedrate": 50,
+            "startFeedrate": 20,
+            "invert": "0",
+            "invertEnable": "0",
+            "acceleration": 10000,
+            "watchPeriod": 1,
+            "pidP": 24.8,
+            "pidI": 1.67,
+            "pidD": 92.03,
+            "advanceK": 0,
+            "advanceL": 0,
+            "waitRetractTemp": 150,
+            "waitRetractUnits": 0,
+            "waitRetract": 0,
+            "stepsPerMM": 370,
+            "coolerPin": -1,
+            "coolerSpeed": 255,
+            "selectCommands": "",
+            "deselectCommands": "",
+            "xOffset": 0,
+            "yOffset": 0,
+            "zOffset": 0,
+            "xOffsetSteps": 0,
+            "yOffsetSteps": 0,
+            "zOffsetSteps": 0,
+            "stepper": {
+                "name": "Extruder 0",
+                "step": "ORIG_E0_STEP_PIN",
+                "dir": "ORIG_E0_DIR_PIN",
+                "enable": "ORIG_E0_ENABLE_PIN"
+            },
+            "advanceBacklashSteps": 0,
+            "decoupleTestPeriod": 12,
+            "jamPin": -1,
+            "jamPullup": "0",
+            "mirror": "0",
+            "invert2": "0",
+            "stepper2": {
+                "name": "Extruder 0",
+                "step": "ORIG_E0_STEP_PIN",
+                "dir": "ORIG_E0_DIR_PIN",
+                "enable": "ORIG_E0_ENABLE_PIN"
+            }
+        }
+    ],
     "uiLanguage": 0,
     "uiController": 0,
     "xMinEndstop": 1,
@@ -684,7 +778,7 @@ Values must be in range 1..255
     "uiAutoReturnAfter": 30000,
     "featureKeys": "0",
     "uiEncoderSpeed": 1,
-    "uiReverseEncoder": "0",
+    "uiReverseEncoder": "1",
     "uiKeyBouncetime": 10,
     "uiKeyFirstRepeat": 500,
     "uiKeyReduceRepeat": 50,
@@ -705,7 +799,7 @@ Values must be in range 1..255
     "bedSensorType": 1,
     "bedSensorPin": "TEMP_1_PIN",
     "bedHeaterPin": "HEATER_1_PIN",
-    "bedHeatManager": 1,
+    "bedHeatManager": 2,
     "bedUpdateInterval": 5000,
     "bedPidDriveMin": 80,
     "bedPidDriveMax": 255,
@@ -756,9 +850,9 @@ Values must be in range 1..255
         "temps": [],
         "numEntries": 0
     },
-    "tempHysteresis": 0,
+    "tempHysteresis": 3,
     "pidControlRange": 20,
-    "skipM109Within": 2,
+    "skipM109Within": 3,
     "extruderFanCoolTemp": 50,
     "minTemp": 170,
     "maxTemp": 260,
@@ -1027,7 +1121,7 @@ Values must be in range 1..255
     "hasUser0": false,
     "hasUser1": false,
     "hasUser2": false,
-    "numExtruder": 0,
+    "numExtruder": 1,
     "version": 100,
     "primaryPortName": ""
 }
