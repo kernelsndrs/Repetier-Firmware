@@ -55,6 +55,10 @@ void Commands::commandLoop() {
             UI_MEDIUM;
         }
         Printer::defaultLoopActions();
+        
+        #ifdef NEOPIXEL_LEDS
+            WS2812::workLoop();
+        #endif
     //}
 }
 
@@ -2399,6 +2403,12 @@ break;
 			else				
 				GCode::resetFatalError();
 			break;
+        case 707: // WS2812 handler
+            if(com->hasP()) 
+                WS2812::handleCommand((uint8_t)com->P);
+            else
+                WS2812::handleCommand(0);
+            break;
         default:
             if(!EVENT_UNHANDLED_M_CODE(com) && Printer::debugErrors()) {
                 Com::writeToAll = false;

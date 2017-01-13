@@ -903,6 +903,11 @@ void Printer::setup()
     HAL::spiBegin();
 #endif
     HAL::hwSetup();
+
+#ifdef NEOPIXEL_LEDS
+    WS2812::init();
+#endif
+
 #ifdef ANALYZER
 // Channel->pin assignments
 #if ANALYZER_CH0>=0
