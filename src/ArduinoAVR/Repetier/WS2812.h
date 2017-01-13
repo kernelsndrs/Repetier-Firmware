@@ -4,15 +4,13 @@
 #include "Adafruit_NeoPixel.h"
 
 #define NEOPIXEL_LEDS
-#define EXT_NUM_LEDS 10
-#define BED_NUM_LEDS 2
-#define EXT_PIN 23
-#define BED_PIN 21
+#define WS_NUM_LEDS 120
+#define WS_LED_PIN 57
 
 class WS2812
 {
 public:
-    static Adafruit_NeoPixel ext_neopixel;
+    static Adafruit_NeoPixel ws_leds;
 
     static void init();
     static void workLoop();

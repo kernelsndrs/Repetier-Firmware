@@ -1,9 +1,9 @@
 #include "WS2812.h"
 #include "Repetier.h"
 
-Adafruit_NeoPixel WS2812::ext_neopixel = Adafruit_NeoPixel(EXT_NUM_LEDS, EXT_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel WS2812::ws_leds = Adafruit_NeoPixel(WS_NUM_LEDS, WS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-uint8_t WS2812::currentMode = 1;
+uint8_t WS2812::currentMode = 4;
 uint8_t WS2812::alertMode = 0;
 uint8_t WS2812::pixelCount = 0;
 
@@ -19,10 +19,10 @@ float WS2812::curr_ext_temp = 0.0;
 float WS2812::target_ext_temp = 0.0;
 
 void WS2812::init() {
-    ext_neopixel.begin();
-    ext_neopixel.show();
+    ws_leds.begin();
+    ws_leds.show();
     
-    currentMode = 1;
+    currentMode = 4;
 }
 
 void WS2812::workLoop() {
@@ -53,7 +53,7 @@ void WS2812::handleCommand(uint8_t command) {
     alertMode = 0;
     ext_c = 0;
     
-    ext_neopixel.clear();
+    ws_leds.clear();
     
     switch (command) {
         case 0:
@@ -108,7 +108,7 @@ void WS2812::handleTemperature() {
         }
         
         last_ext_c = ext_c;
-        ext_c = ext_neopixel.Color(neo_r, neo_g, neo_b);
+        ext_c = ws_leds.Color(neo_r, neo_g, neo_b);
 
         if(ext_c != last_ext_c) 
             colorFill(ext_c);
@@ -120,9 +120,9 @@ void WS2812::handleAlert() {
         previousMillis = HAL::timeInMilliseconds();
         
         if (alertMode == 0)
-            colorFill(ext_neopixel.Color(255, 255, 255)); // White
+            colorFill(ws_leds.Color(255, 255, 255)); // White
         else 
-            colorFill(ext_neopixel.Color(255, 0, 0)); // Red
+            colorFill(ws_leds.Color(255, 0, 0)); // Red
         
         alertMode += 1;
         
@@ -136,15 +136,15 @@ void WS2812::handleColorWipe() {
         previousMillis = HAL::timeInMilliseconds();
 
         if (alertMode == 0)
-            colorWipe(ext_neopixel.Color(255, 0, 0)); // Red
+            colorWipe(ws_leds.Color(255, 0, 0)); // Red
         else if (alertMode == 1)
-            colorWipe(ext_neopixel.Color(0, 255, 0)); // Green
+            colorWipe(ws_leds.Color(0, 255, 0)); // Green
         else 
-            colorWipe(ext_neopixel.Color(0, 0, 255)); // Blue
+            colorWipe(ws_leds.Color(0, 0, 255)); // Blue
         
         pixelCount += 1;
         
-        if (pixelCount >= ext_neopixel.numPixels()) {
+        if (pixelCount >= ws_leds.numPixels()) {
             pixelCount = 0;
 
             alertMode += 1;
@@ -158,14 +158,14 @@ void WS2812::handleTheaterChase() {
     if(HAL::timeInMilliseconds() - previousMillis >= theatherChaseLoopInterval) {
         previousMillis = HAL::timeInMilliseconds();
         
-        uint32_t c1 = (alertMode == 0) ? ext_neopixel.Color(255, 0, 0) : 0;
-        uint32_t c2 = (alertMode == 0) ? 0 : ext_neopixel.Color(255, 0, 0);
+        uint32_t c1 = (alertMode == 0) ? ws_leds.Color(255, 0, 0) : 0;
+        uint32_t c2 = (alertMode == 0) ? 0 : ws_leds.Color(255, 0, 0);
         
-        for (uint16_t i=0; i < ext_neopixel.numPixels(); i+=2) {
-            ext_neopixel.setPixelColor(i, c1);
-            ext_neopixel.setPixelColor(i+1, c2);
+        for (uint16_t i=0; i < ws_leds.numPixels(); i+=2) {
+            ws_leds.setPixelColor(i, c1);
+            ws_leds.setPixelColor(i+1, c2);
         }
-        ext_neopixel.show();
+        ws_leds.show();
 
         alertMode += 1;
         
@@ -176,14 +176,14 @@ void WS2812::handleTheaterChase() {
 
 
 void WS2812::colorFill(uint32_t c) {
-    for(uint16_t i=0; i < ext_neopixel.numPixels(); i++) {
-        ext_neopixel.setPixelColor(i, c);
+    for(uint16_t i=0; i < ws_leds.numPixels(); i++) {
+        ws_leds.setPixelColor(i, c);
     }
     
-    ext_neopixel.show();
+    ws_leds.show();
 }
 
 void WS2812::colorWipe(uint32_t c) {
-    ext_neopixel.setPixelColor(pixelCount, c);
-    ext_neopixel.show();
+    ws_leds.setPixelColor(pixelCount, c);
+    ws_leds.show();
 }
