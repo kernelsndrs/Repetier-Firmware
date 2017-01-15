@@ -3,7 +3,7 @@
 
 Adafruit_NeoPixel WS2812::ws_leds = Adafruit_NeoPixel(WS_NUM_LEDS, WS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-uint8_t WS2812::currentMode = 4;
+uint8_t WS2812::currentMode = 1;
 uint8_t WS2812::alertMode = 0;
 uint8_t WS2812::pixelCount = 0;
 
@@ -22,7 +22,7 @@ void WS2812::init() {
     ws_leds.begin();
     ws_leds.show();
     
-    currentMode = 4;
+    currentMode = 1;
 }
 
 void WS2812::workLoop() {
@@ -144,7 +144,7 @@ void WS2812::handleColorWipe() {
         
         pixelCount += 1;
         
-        if (pixelCount >= ws_leds.numPixels()) {
+        if (pixelCount >= WS_NUM_LEDS) {
             pixelCount = 0;
 
             alertMode += 1;
@@ -161,7 +161,7 @@ void WS2812::handleTheaterChase() {
         uint32_t c1 = (alertMode == 0) ? ws_leds.Color(255, 0, 0) : 0;
         uint32_t c2 = (alertMode == 0) ? 0 : ws_leds.Color(255, 0, 0);
         
-        for (uint16_t i=0; i < ws_leds.numPixels(); i+=2) {
+        for (uint16_t i=0; i < WS_NUM_LEDS; i+=2) {
             ws_leds.setPixelColor(i, c1);
             ws_leds.setPixelColor(i+1, c2);
         }
@@ -176,7 +176,7 @@ void WS2812::handleTheaterChase() {
 
 
 void WS2812::colorFill(uint32_t c) {
-    for(uint16_t i=0; i < ws_leds.numPixels(); i++) {
+    for(uint16_t i=0; i < WS_NUM_LEDS; i++) {
         ws_leds.setPixelColor(i, c);
     }
     

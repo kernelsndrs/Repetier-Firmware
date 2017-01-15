@@ -287,9 +287,9 @@ It also can add a delay to wait for spindle to run on full speed.
 #define DISABLE_Y 0
 #define DISABLE_Z 0
 #define DISABLE_E 0
-#define INVERT_X_DIR 0
-#define INVERT_Y_DIR 1
-#define INVERT_Z_DIR 0
+#define INVERT_X_DIR 1
+#define INVERT_Y_DIR 0
+#define INVERT_Z_DIR 1
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
@@ -337,7 +337,7 @@ It also can add a delay to wait for spindle to run on full speed.
 #define HOMING_FEEDRATE_X 50
 #define HOMING_FEEDRATE_Y 50
 #define HOMING_FEEDRATE_Z 10
-#define HOMING_ORDER HOME_ORDER_ZXY
+#define HOMING_ORDER HOME_ORDER_XYZ
 #define ZHOME_MIN_TEMPERATURE 0
 #define ZHOME_HEAT_ALL 1
 #define ZHOME_HEAT_HEIGHT 20

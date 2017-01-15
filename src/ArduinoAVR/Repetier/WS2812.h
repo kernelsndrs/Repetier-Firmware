@@ -5,7 +5,7 @@
 
 #define NEOPIXEL_LEDS
 #define WS_NUM_LEDS 120
-#define WS_LED_PIN 57
+#define WS_LED_PIN 2
 
 class WS2812
 {
