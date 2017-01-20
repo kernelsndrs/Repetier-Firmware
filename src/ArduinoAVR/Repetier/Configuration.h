@@ -160,7 +160,7 @@
 // ############# Heated bed configuration ########################
 
 #define HAVE_HEATED_BED 1
-#define HEATED_BED_MAX_TEMP 120
+#define HEATED_BED_MAX_TEMP 110
 #define SKIP_M190_IF_WITHIN 3
 #define HEATED_BED_SENSOR_TYPE 1
 #define HEATED_BED_SENSOR_PIN TEMP_1_PIN
@@ -536,7 +536,7 @@ Values must be in range 1..255
 #define UI_SET_PRESET_HEATED_BED_TEMP_ABS 90
 #define UI_SET_PRESET_EXTRUDER_TEMP_ABS   240
 #define UI_SET_MIN_HEATED_BED_TEMP  30
-#define UI_SET_MAX_HEATED_BED_TEMP 120
+#define UI_SET_MAX_HEATED_BED_TEMP 110
 #define UI_SET_MIN_EXTRUDER_TEMP   170
 #define UI_SET_MAX_EXTRUDER_TEMP   260
 #define UI_SET_EXTRUDER_FEEDRATE 2
