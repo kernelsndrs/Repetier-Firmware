@@ -10,7 +10,8 @@
 #define LEDCount 120   // Number of LEDs to drive 
 
 #define WSLED_nochange  1 // Reserved for no change to LED Strip
-
+#define WSLED_cool EXTRUDER_FAN_COOL_TEMP      // The temp at which the hotend is considered cooled down and safe
+#define WSLED_swing 4                          // how far off before the temperature is not considered 'at temp' in degrees C
 #ifndef UINT8_MAX
 #define UINT8_MAX 255
 #endif // UINT8_MAX
@@ -36,8 +37,28 @@
 WS2812 LED(LEDCount); 
 cRGB value;
 uint16_t WSLED_lastpattern;
+uint8_t waitingForHeaterIndex = UINT8_MAX;
+float waitingForHeaterStartC;
 
-void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) {
+void WSLED_Alternate() {
+  int i = 0;
+  while (i < LEDCount) {
+    if(i % 2 )
+      LED.set_crgb_at(i,value);
+    i++;
+  }
+}
+void WSLED_Full(){
+  int i = 0;
+  while (i < LEDCount) {
+    LED.set_crgb_at(i,value);
+    i++;
+  }
+}
+void WSLED_Write(uint8_t pattern = 1, uint8_t red = -1, uint8_t green = -1, uint8_t blue = -1) {
+  if(red == -1 || green == -1 || blue == -1){
+    return;
+  }
   value.r = red;
   value.g = green;
   value.b = blue;
@@ -53,19 +74,7 @@ void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) 
     }
     WSLED_lastpattern = (pattern*red+green-blue);
   }
-}
-void WSLED_Alternate() {
-  while (i < LEDCount) {
-    if(i % 2 )
-      LED.set_crgb_at(i,value);
-    i++;
-  }
-}
-void WSLED_Full(){
-  while (i < LEDCount) {
-    LED.set_crgb_at(i,value);
-    i++;
-  }
+  return;
 }
 
 void WSLED_Init(){
@@ -231,8 +240,6 @@ union patterncode {  // access a pattern both as 32 bits and as array of 4 uint8
 patterncode WSLED_lastpattern;
 uint16_t WSLED_timer;
 bool WSLED_starup;
-uint8_t waitingForHeaterIndex = UINT8_MAX;
-float waitingForHeaterStartC;
 }
 
 bool WSLEDEndstop(bool force) {
