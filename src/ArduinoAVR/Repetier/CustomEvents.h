@@ -3,7 +3,7 @@
 
 #define EVENT_WAITING_HEATER(id) {WSLED_WaitingHeater(id);}
 #define EVENT_HEATING_FINISHED(id) {WSLED_HeatingFinished(id);}
-#define EVENT_TIMER_100MS {WSLED_Loop();}
+#define EVENT_TIMER_500MS {WSLED_Loop();}
 #define EVENT_INITIALIZE {WSLED_Init();}
 void WSLED_Init();
 void WSLED_Loop();

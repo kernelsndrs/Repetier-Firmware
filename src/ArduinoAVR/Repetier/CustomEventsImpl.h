@@ -8,15 +8,13 @@
 #include "WS2812.h"
 #define outputPin 11  // Digital output pin 
 #define LEDCount 120   // Number of LEDs to drive 
-
 #define WSLED_nochange  1 // Reserved for no change to LED Strip
 #define WSLED_cool EXTRUDER_FAN_COOL_TEMP      // The temp at which the hotend is considered cooled down and safe
 #define WSLED_swing 4                          // how far off before the temperature is not considered 'at temp' in degrees C
 #ifndef UINT8_MAX
 #define UINT8_MAX 255
 #endif // UINT8_MAX
-
-// patterns                R   G   B
+// patterns               R   G   B
 #define WSLED_ready        0, 30,  0    // Printer Ready
 #define WSLED_startup     30, 30, 30, 2    // Printer startup
 #define WSLED_temphit     40, 40, 40    // Hotend is at target temp
@@ -61,7 +59,7 @@ void WSLED_Write(uint8_t red, uint8_t green, uint8_t blue, uint8_t pattern = 1) 
   value.g = green;
   value.b = blue;
   //ghetto cache.
-  if((pattern*red+green-blue) != WSLED_lastpattern) {
+  //if((pattern*red+green-blue) != WSLED_lastpattern) {
     switch(pattern) {
       case 1:
         WSLED_Full();
@@ -71,7 +69,7 @@ void WSLED_Write(uint8_t red, uint8_t green, uint8_t blue, uint8_t pattern = 1) 
         break;
     }
     WSLED_lastpattern = (pattern*red+green-blue);
-  }
+  //}
   return;
 }
 
@@ -88,7 +86,7 @@ void WSLED_Init(){
   //LED.setColorOrderGRB();  // Uncomment for GRB color order (Default; will be used if none other is defined.)
 
   WSLED_Write(WSLED_startup);
-  return;
+  
 }
 void WSLED_WaitingHeater(int8_t id){
   if(id == -1){
