@@ -37,20 +37,6 @@ WS2812 LED(LEDCount);
 cRGB value;
 uint16_t WSLED_lastpattern;
 
-void WSLED_Init(){
-  LED.setOutput(outputPin); // Digital Pin 
-
-  /* You may uncomment one of the following three lines to switch 
-  to a different data transmission sequence for your addressable LEDs.
-  (These functions can be used at any point in your program as needed.)   */
-
-  LED.setColorOrderRGB();  // Uncomment for RGB color order
-  //LED.setColorOrderBRG();  // Uncomment for BRG color order
-  //LED.setColorOrderGRB();  // Uncomment for GRB color order (Default; will be used if none other is defined.)
-
-  WSLED_Write(WSLED_startup);
-  return;
-}
 void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) {
   value.r = red;
   value.g = green;
@@ -80,6 +66,21 @@ void WSLED_Full(){
     LED.set_crgb_at(i,value);
     i++;
   }
+}
+
+void WSLED_Init(){
+  LED.setOutput(outputPin); // Digital Pin 
+
+  /* You may uncomment one of the following three lines to switch 
+  to a different data transmission sequence for your addressable LEDs.
+  (These functions can be used at any point in your program as needed.)   */
+
+  LED.setColorOrderRGB();  // Uncomment for RGB color order
+  //LED.setColorOrderBRG();  // Uncomment for BRG color order
+  //LED.setColorOrderGRB();  // Uncomment for GRB color order (Default; will be used if none other is defined.)
+
+  WSLED_Write(WSLED_startup);
+  return;
 }
 void WSLED_WaitingHeater(int8_t id){
   if(id == -1){
