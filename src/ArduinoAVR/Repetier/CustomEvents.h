@@ -9,3 +9,5 @@ void WSLED_Init();
 void WSLED_Loop();
 void WSLED_WaitingHeater(int8_t id);
 void WSLED_HeatingFinished(int8_t id);
+
+#endif
