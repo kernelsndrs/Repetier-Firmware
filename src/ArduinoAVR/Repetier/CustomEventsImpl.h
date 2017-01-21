@@ -9,15 +9,36 @@
 #define outputPin 11  // Digital output pin 
 #define LEDCount 120   // Number of LEDs to drive 
 
+#define WSLED_nochange  1 // Reserved for no change to LED Strip
+
+#ifndef UINT8_MAX
+#define UINT8_MAX 255
+#endif // UINT8_MAX
+
+// patterns               pattern R   G   B
+#define WSLED_ready        0, 30,  0    // Printer Ready
+#define WSLED_startup     2, 30, 30, 30    // Printer startup
+#define WSLED_temphit     40, 40, 40    // Hotend is at target temp
+#define WSLED_templow     40,  0, 40    // Hotend heater is slightly lower than target temp
+#define WSLED_temphigh    40,  0,  0    // Hotend heater is slightly higher than target temp
+#define WSLED_heateroff    0,  0, 40    // Hotend heater is off but still hot
+#define WSLED_heating0     0,  0, 50    // Hotend heating up <10%
+#define WSLED_heating1     0,  0,100    // Hotend heating up <20%
+#define WSLED_heating2     0, 50,100    // Hotend heating up <30%
+#define WSLED_heating3     0,100,100    // Hotend heating up <40%
+#define WSLED_heating4     0,100, 50    // Hotend heating up <50%
+#define WSLED_heating5   100,100,  0    // Hotend heating up <60%
+#define WSLED_heating6   100, 50,  0    // Hotend heating up <70%
+#define WSLED_heating7   100,  0,100    // Hotend heating up <80%
+#define WSLED_heating8   100,  0, 50    // Hotend heating up <90%
+#define WSLED_heating9   100,  0,  0    // Hotend heating up <100%
 
 WS2812 LED(LEDCount); 
 cRGB value;
-
-byte intensity;
-byte sign;
+uint16_t WSLED_lastpattern;
 
 void WSLED_Init(){
-   LED.setOutput(outputPin); // Digital Pin 7
+  LED.setOutput(outputPin); // Digital Pin 
 
   /* You may uncomment one of the following three lines to switch 
   to a different data transmission sequence for your addressable LEDs.
@@ -27,71 +48,153 @@ void WSLED_Init(){
   //LED.setColorOrderBRG();  // Uncomment for BRG color order
   //LED.setColorOrderGRB();  // Uncomment for GRB color order (Default; will be used if none other is defined.)
 
-  intensity = 0;
-  sign = 1;
+  WSLED_Write(WSLED_startup);
+  return;
+}
+void WSLED_WaitingHeater(int8_t id){
+  if(id == -1){
+    waitingForHeaterIndex = NUM_TEMPERATURE_LOOPS - 1;
+  } else if (id >= 0 && id < NUM_TEMPERATURE_LOOPS) {
+    waitingForHeaterIndex = id;
+  } else {
+   //Error
+   waitingForHeaterIndex = UINT8_MAX;
+  }
+
+  if(waitingForHeaterIndex < NUM_TEMPERATURE_LOOPS){
+    waitingForHeaterStartC = tempController[waitingForHeaterIndex]->currentTemperatureC;
+  }
 }
 
-void WSLED_Loop() {
-  int i = 0;
-  if (sign) {
-    intensity++;
-    if (intensity == 255) 
-      sign = 0; 
-  }
-  else {
-    intensity--;
-    if (intensity == 0)
-      sign = 1;
+void WSLED_HeatingFinished(int8_t id){
+  waitingForHeaterIndex = UINT8_MAX;
+}
+
+//does percentile display between start temp and target temp while a heater is heating up
+bool WSLEDTemp() {
+  if(waitingForHeaterIndex >= NUM_TEMPERATURE_LOOPS){
+    return false;
   }
 
-  while (i < LEDCount){
-    if ((i % 3) == 0) {  // First LED, and every third after that
-      value.b = 0; 
-      value.g = 0; 
-      value.r = intensity; // RGB Value -> Red Only
-      LED.set_crgb_at(i, value); // Set value at LED found at index 0
+  float target = tempController[waitingForHeaterIndex]->targetTemperatureC;
+  float current = tempController[waitingForHeaterIndex]->currentTemperatureC;
+  float start = waitingForHeaterStartC;
+
+
+  uint8_t pattern = (10.0f * (1.0f - ((target - current) / (target - start))));
+
+  switch(pattern){
+    default:
+    case 0:
+      WSLED_Write(WSLED_heating0);
+      break;
+    case 1:
+      WSLED_Write(WSLED_heating1);
+      break;
+    case 2:
+      WSLED_Write(WSLED_heating2);
+      break;
+    case 3:
+      WSLED_Write(WSLED_heating3);
+      break;
+    case 4:
+      WSLED_Write(WSLED_heating4);
+      break;
+    case 5:
+      WSLED_Write(WSLED_heating5);
+      break;
+    case 6:
+      WSLED_Write(WSLED_heating6);
+      break;
+    case 7:
+      WSLED_Write(WSLED_heating7);
+      break;
+    case 8:
+      WSLED_Write(WSLED_heating8);
+      break;
+    case 9:
+      WSLED_Write(WSLED_heating9);
+      break;
+  }
+
+  return true;
+}
+void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) {
+  value.r = red;
+  value.g = green;
+  value.b = blue;
+  //ghetto cache.
+  if((pattern*red+green-blue) != WSLED_lastpattern) {
+    switch(pattern) {
+      case 1:
+        WSLED_Full();
+        break;
+      case 2:
+        WSLED_Alternate();
+        break;
     }
-    else if ((i % 3) == 1) { // Second LED, and every third after that
-      value.b = 0; 
-      value.g = intensity; 
-      value.r = 0; // RGB Value -> Green Only
-      LED.set_crgb_at(i, value); // Set value at LED found at index 0
-    }
-    else  { // Third LED, and every third after that
-      value.b = intensity; 
-      value.g = 0; 
-      value.r = 0; // RGB Value -> Blue Only
-      LED.set_crgb_at(i, value); // Set value at LED found at index 0
-    }
+    WSLED_lastpattern = (pattern*red+green-blue);
+  }
+}
+void WSLED_Alternate() {
+  while (i < LEDCount) {
+    if(i % 2 )
+      LED.set_crgb_at(i,value);
     i++;
   }
+}
+void WSLED_Full(){
+  while (i < LEDCount) {
+    LED.set_crgb_at(i,value);
+    i++;
+  }
+}
+void WSLED_Loop() {
+  
+  if(WSLEDTemp()) {
+    return;
+  }
 
-  LED.sync(); // Sends the data to the LEDs
-  delay(10); // Wait (ms)
+
+  float currentTempC =  0;
+  float targetTempC = 0;
+
+  for(uint8_t i=0; i < NUM_EXTRUDER; i++){
+    float target = tempController[i]->targetTemperatureC;
+    float current = tempController[i]->currentTemperatureC;
+
+    if(target > targetTempC || (targetTempC == 0 && target == 0 && current > currentTempC)){
+      currentTempC = current;
+      targetTempC = target;
+    }
+  }
+
+  if(targetTempC == 0) {
+    if(currentTempC > WSLED_cool) { // heater is off but still warm
+      WSLED_Write(WSLED_heateroff);
+    } else {
+      WSLED_Write(2, WSLED_ready);
+    }
+
+  } else {
+    uint8_t swing = abs(targetTempC - currentTempC); // how far off from target temp we are
+
+    if(swing < WSLED_swing * 2) {                  // if within double the swing threshold
+      if(swing < WSLED_swing) {
+        WSLED_Write(WSLED_temphit);  // close to target temp, so consider us 'at temp'
+      } else {
+        if(currentTempC >= targetTempC) {
+          WSLED_Write(WSLED_temphigh);   // temp high, heater is off
+        } else {
+          WSLED_Write(WSLED_templow);    // temp low, heater is on
+        }
+      }
+    }
+  }
 }
 /*
-// option switches
-#define WSLED_cool EXTRUDER_FAN_COOL_TEMP      // The temp at which the hotend is considered cooled down and safe
-#define WSLED_swing 4                          // how far off before the temperature is not considered 'at temp' in degrees C
-#define WSLED_endstoptimer 3                   // how many seconds to display endstop status
 
-// patterns               id   R   G   B
-#define WSLED_ready      10,  0, 30,  0    // Printer Ready
-#define WSLED_startup    10, 30, 30, 30    // Printer startup
-#define WSLED_temphit    14, 40, 40, 40    // Hotend is at target temp
-#define WSLED_templow    10, 40,  0, 40    // Hotend heater is slightly lower than target temp
-#define WSLED_temphigh   10, 40,  0,  0    // Hotend heater is slightly higher than target temp
-#define WSLED_heateroff  11,  0,  0, 40    // Hotend heater is off but still hot
-#define WSLED_heating0   10,  0,  0, 50    // Hotend heating up <10%
-#define WSLED_heating1   10,  0,  0,100    // Hotend heating up <20%
-#define WSLED_heating2   10,  0, 50,100    // Hotend heating up <30%
-#define WSLED_heating3   10,  0,100,100    // Hotend heating up <40%
-#define WSLED_heating4   10,  0,100, 50    // Hotend heating up <50%
-#define WSLED_heating5   10,100,100,  0    // Hotend heating up <60%
-#define WSLED_heating6   10,100, 50,  0    // Hotend heating up <70%
-#define WSLED_heating7   10,100,  0,100    // Hotend heating up <80%
-#define WSLED_heating8   10,100,  0, 50    // Hotend heating up <90%
-#define WSLED_heating9   10,100,  0,  0    // Hotend heating up <100%
+
 
 /*
   Pattern ID is the number of the pattern/animation to use
@@ -116,11 +219,6 @@ void WSLED_Loop() {
 
 
 // Pattern Selection Table for defaults that must not be changed
-#define WSLED_nochange 	1	// Reserved for no change to LED Strip
-
-#ifndef UINT8_MAX
-#define UINT8_MAX 255
-#endif // UINT8_MAX
 
 
 union patterncode {  // access a pattern both as 32 bits and as array of 4 uint8_ts.
@@ -133,41 +231,6 @@ uint16_t WSLED_timer;
 bool WSLED_starup;
 uint8_t waitingForHeaterIndex = UINT8_MAX;
 float waitingForHeaterStartC;
-
-uint32_t WSLEDConvert(uint8_t pattern, uint8_t red, uint8_t green, uint8_t blue) {
-  patterncode pc;
-  pc.part[0] = pattern;
-  pc.part[1] = red;
-  pc.part[2] = green;
-  pc.part[3] = blue;
-  return pc.value;
-}
-
-// send pattern frame via I2C
-void WSLED_Write(uint8_t pattern, uint8_t red, uint8_t green, uint8_t blue, uint16_t timer) {
-  if(pattern == 0) {
-    return;
-  }
-
-  uint32_t converted = WSLEDConvert(pattern, red, green, blue);
-
-  if(converted != WSLED_lastpattern.value) {  // don't send sequential identical patterns
-    uint8_t frame[] = { 250, pattern, red, green, blue };
-
-    HAL::i2cStart((21 << 1) + I2C_WRITE);
-    HAL::i2cWrite(frame[0]);
-    HAL::i2cWrite(frame[1]);
-    HAL::i2cWrite(frame[2]);
-    HAL::i2cWrite(frame[3]);
-    HAL::i2cWrite(frame[4]);
-    HAL::i2cStop();
-
-    WSLED_lastpattern.value = converted;  // update states
-
-    if(timer) {
-      WSLED_timer = timer * 10U;
-    }
-  }
 }
 
 bool WSLEDEndstop(bool force) {
@@ -205,78 +268,6 @@ bool WSLEDEndstop(bool force) {
   return false;
 }
 
-void WSLED_WaitingHeater(int8_t id){
-  if(id == -1){
-    waitingForHeaterIndex = NUM_TEMPERATURE_LOOPS - 1;
-  } else if (id >= 0 && id < NUM_TEMPERATURE_LOOPS) {
-    waitingForHeaterIndex = id;
-  } else {
-   //Error
-   waitingForHeaterIndex = UINT8_MAX;
-  }
-
-  if(waitingForHeaterIndex < NUM_TEMPERATURE_LOOPS){
-    waitingForHeaterStartC = tempController[waitingForHeaterIndex]->currentTemperatureC;
-  }
-}
-
-void WSLED_HeatingFinished(int8_t id){
-  waitingForHeaterIndex = UINT8_MAX;
-}
-
-//does percentile display between start temp and target temp while a heater is heating up
-bool WSLEDTemp() {
-	if(waitingForHeaterIndex >= NUM_TEMPERATURE_LOOPS){
-    return false;
-	}
-
-  float target = tempController[waitingForHeaterIndex]->targetTemperatureC;
-  float current = tempController[waitingForHeaterIndex]->currentTemperatureC;
-  float start = waitingForHeaterStartC;
-
-  uint8_t pattern = (10.0f * (1.0f - ((target - current) / (target - start))));
-
-  switch(pattern){
-    default:
-    case 0:
-      WSLED_Write(WSLED_heating0, 0);
-      break;
-    case 1:
-      WSLED_Write(WSLED_heating1, 0);
-      break;
-    case 2:
-      WSLED_Write(WSLED_heating2, 0);
-      break;
-    case 3:
-      WSLED_Write(WSLED_heating3, 0);
-      break;
-    case 4:
-      WSLED_Write(WSLED_heating4, 0);
-      break;
-    case 5:
-      WSLED_Write(WSLED_heating5, 0);
-      break;
-    case 6:
-      WSLED_Write(WSLED_heating6, 0);
-      break;
-    case 7:
-      WSLED_Write(WSLED_heating7, 0);
-      break;
-    case 8:
-      WSLED_Write(WSLED_heating8, 0);
-      break;
-    case 9:
-      WSLED_Write(WSLED_heating9, 0);
-      break;
-  }
-
-  return true;
-}
-
-void WSLEDSetup(){
-  HAL::i2cInit(400000L);
-  WSLED_Write(WSLED_startup, 1);
-}
 
 //Called every 100ms
 void WSLED_Update() {
