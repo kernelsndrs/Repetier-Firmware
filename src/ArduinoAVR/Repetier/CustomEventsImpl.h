@@ -51,6 +51,36 @@ void WSLED_Init(){
   WSLED_Write(WSLED_startup);
   return;
 }
+void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) {
+  value.r = red;
+  value.g = green;
+  value.b = blue;
+  //ghetto cache.
+  if((pattern*red+green-blue) != WSLED_lastpattern) {
+    switch(pattern) {
+      case 1:
+        WSLED_Full();
+        break;
+      case 2:
+        WSLED_Alternate();
+        break;
+    }
+    WSLED_lastpattern = (pattern*red+green-blue);
+  }
+}
+void WSLED_Alternate() {
+  while (i < LEDCount) {
+    if(i % 2 )
+      LED.set_crgb_at(i,value);
+    i++;
+  }
+}
+void WSLED_Full(){
+  while (i < LEDCount) {
+    LED.set_crgb_at(i,value);
+    i++;
+  }
+}
 void WSLED_WaitingHeater(int8_t id){
   if(id == -1){
     waitingForHeaterIndex = NUM_TEMPERATURE_LOOPS - 1;
@@ -119,36 +149,7 @@ bool WSLEDTemp() {
 
   return true;
 }
-void WSLED_Write(uint8_t pattern = 1, uint8_t red, uint8_t green, uint8_t blue) {
-  value.r = red;
-  value.g = green;
-  value.b = blue;
-  //ghetto cache.
-  if((pattern*red+green-blue) != WSLED_lastpattern) {
-    switch(pattern) {
-      case 1:
-        WSLED_Full();
-        break;
-      case 2:
-        WSLED_Alternate();
-        break;
-    }
-    WSLED_lastpattern = (pattern*red+green-blue);
-  }
-}
-void WSLED_Alternate() {
-  while (i < LEDCount) {
-    if(i % 2 )
-      LED.set_crgb_at(i,value);
-    i++;
-  }
-}
-void WSLED_Full(){
-  while (i < LEDCount) {
-    LED.set_crgb_at(i,value);
-    i++;
-  }
-}
+
 void WSLED_Loop() {
   
   if(WSLEDTemp()) {
