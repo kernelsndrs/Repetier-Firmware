@@ -16,9 +16,9 @@
 #define UINT8_MAX 255
 #endif // UINT8_MAX
 
-// patterns               pattern R   G   B
+// patterns                R   G   B
 #define WSLED_ready        0, 30,  0    // Printer Ready
-#define WSLED_startup     2, 30, 30, 30    // Printer startup
+#define WSLED_startup     30, 30, 30, 2    // Printer startup
 #define WSLED_temphit     40, 40, 40    // Hotend is at target temp
 #define WSLED_templow     40,  0, 40    // Hotend heater is slightly lower than target temp
 #define WSLED_temphigh    40,  0,  0    // Hotend heater is slightly higher than target temp
@@ -43,8 +43,9 @@ float waitingForHeaterStartC;
 void WSLED_Alternate() {
   int i = 0;
   while (i < LEDCount) {
-    if(i % 2 )
+    if(i % 2 ){
       LED.set_crgb_at(i,value);
+    }
     i++;
   }
 }
@@ -55,10 +56,7 @@ void WSLED_Full(){
     i++;
   }
 }
-void WSLED_Write(uint8_t pattern = 1, uint8_t red = -1, uint8_t green = -1, uint8_t blue = -1) {
-  if(red == -1 || green == -1 || blue == -1){
-    return;
-  }
+void WSLED_Write(uint8_t red, uint8_t green, uint8_t blue, uint8_t pattern = 1) {
   value.r = red;
   value.g = green;
   value.b = blue;
@@ -78,6 +76,7 @@ void WSLED_Write(uint8_t pattern = 1, uint8_t red = -1, uint8_t green = -1, uint
 }
 
 void WSLED_Init(){
+  WSLED_lastpattern = -1; // init last pattern val
   LED.setOutput(outputPin); // Digital Pin 
 
   /* You may uncomment one of the following three lines to switch 
@@ -184,7 +183,7 @@ void WSLED_Loop() {
     if(currentTempC > WSLED_cool) { // heater is off but still warm
       WSLED_Write(WSLED_heateroff);
     } else {
-      WSLED_Write(2, WSLED_ready);
+      WSLED_Write(WSLED_ready, 2);
     }
 
   } else {
