@@ -6,7 +6,7 @@
   Contributed to MTW by OhmEye October 2014
   */
 #include <WS2812.h>
-#define outputPin 2  // Digital output pin 
+#define outputPin 11  // Digital output pin 
 #define LEDCount 120   // Number of LEDs to drive 
 
 
