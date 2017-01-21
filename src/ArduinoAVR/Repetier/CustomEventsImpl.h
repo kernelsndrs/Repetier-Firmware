@@ -5,7 +5,7 @@
   Repetier-Firmware port/rewrite by exuvo 2015-05-17
   Contributed to MTW by OhmEye October 2014
   */
-#include <WS2812.h>
+#include "WS2812.h"
 #define outputPin 11  // Digital output pin 
 #define LEDCount 120   // Number of LEDs to drive 
 
